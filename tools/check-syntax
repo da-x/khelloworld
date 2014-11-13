@@ -3,6 +3,19 @@
 import sys, re, os
 
 def main():
+    if sys.argv[1] == "save-kdir":
+        kdir, save_file = sys.argv[2:4]
+        kdir_saved = None
+        if os.path.exists(save_file):
+            f = open(save_file, "r")
+            kdir_saved = f.read().strip()
+            f.close()
+        if kdir_saved != kdir:
+            f = open(save_file, "w")
+            f.write(kdir)
+            f.close()
+        return
+
     for arg in sys.argv[1:]:
         m = re.match("(.*)_flymake.c", arg)
         if not m:
@@ -41,6 +54,21 @@ def main():
                 params.append(p)
             if p.endswith(suffix_to_find):
                 chdir = p[:-len(suffix_to_find)]
+
+        if not chdir or chdir == ".":
+            d = os.path.dirname(arg)
+            found = False
+            while d:
+                f = os.path.join(d, ".kdir")
+                if os.path.exists(f):
+                    f = open(f, "r")
+                    chdir = f.read().strip()
+                    found = True
+                    f.close()
+                    break
+                d = os.path.dirname(d)
+            if not found:
+                return
 
         params.append("-fsyntax-only")
         os.chdir(chdir)

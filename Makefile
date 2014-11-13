@@ -14,6 +14,7 @@ helloworld-objs += helloworld_main.o
 obj-m += helloworld.o
 
 all:
+	@./tools/check-syntax save-kdir $(KDIR) .kdir
 	+make -C $(KDIR) M=$(pwd) modules
 
 clean:
